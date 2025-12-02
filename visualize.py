@@ -48,3 +48,37 @@ def summarize_state_usage(enc_sequences: Dict[str, List[int]], pi, A, B) -> None
         global_counts.update(path)
         print(f"{bird}: {len(set(path))} states, counts={dict(counts)}")
     print("\nGlobal:", dict(global_counts))
+
+def plot_train_test_ll(results):
+    """
+    results: list of tuples  (bird_id, train_ll, test_ll)
+             returned by cross_bird_validation()
+
+    Produces a line plot comparing train vs test LL/token per bird.
+    """
+    import matplotlib.pyplot as plt
+
+    # Unpack results
+    birds = [r[0] for r in results]
+    train_ll = [r[1] for r in results]
+    test_ll = [r[2] for r in results]
+
+    x = np.arange(len(birds))
+
+    plt.figure(figsize=(14, 6))
+
+    # Bar plot side-by-side
+    plt.bar(x - 0.15, train_ll, width=0.3, label="Train LL/token")
+    plt.bar(x + 0.15, test_ll, width=0.3, label="Test LL/token")
+
+    # Improve readability
+    plt.xticks(x, birds, rotation=90)
+    plt.xlabel("Bird ID")
+    plt.ylabel("Log-Likelihood per Token")
+    plt.title("Cross-Bird Validation: Train vs Test LL/token")
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
