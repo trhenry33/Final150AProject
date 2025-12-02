@@ -10,6 +10,8 @@ from data import load_bird_csv, discretize_positions, build_sequences, build_obs
 from em import em
 from viterbi import viterbi
 from visualize import plot_viterbi_path, plot_state_timeline, plot_path_on_gps, summarize_state_usage
+from state_characteristics import compute_features, summarize_states, plot_state_speeds
+
 
 
 def main():
@@ -46,6 +48,21 @@ def main():
     path = viterbi(B, pi, np.asarray(obs_seq, dtype=int), A)
 
     print(f"Ran Viterbi for bird {bird_to_use}: seq_len={len(obs_seq)} states_used={len(set(path))}")
+   # Compute full feature dataframe for the bird
+    features = compute_features(df, bird_to_use, path)
+
+    # Summaries
+    stats = summarize_states(features, N)
+    print("\n=== State Movement Characteristics ===")
+    for s, info in stats.items():
+        print(f"State {s}:")
+        for k, v in info.items():
+            print(f"   {k}: {v}")
+        print()
+
+    # Show the speed dist graphs
+    plot_state_speeds(features, N)
+
     print("First 30 states:", path[:30])
 
     print("\nSummarizing state usage across birds:")
